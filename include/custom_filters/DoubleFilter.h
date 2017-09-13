@@ -1,7 +1,7 @@
 /*********************************************************************
 * Software License Agreement (BSD License)
 *
-*  Copyright (c) 2010, Willow Garage, Inc.
+*  Copyright (c) 2017, Mathieu Lauret
 *  All rights reserved.
 *
 *  Redistribution and use in source and binary forms, with or without
@@ -32,8 +32,8 @@
 *  POSSIBILITY OF SUCH DAMAGE.
 *********************************************************************/
 
-#ifndef MESSAGE_FILTERS_DOUBLE_H
-#define MESSAGE_FILTERS_DOUBLE_H
+#ifndef CUSTOM_FILTERS_DOUBLE_H
+#define CUSTOM_FILTERS_DOUBLE_H
 
 #include "message_filters/simple_filter.h"
 
@@ -71,7 +71,7 @@ public:
 
   void add(const EventType& evt)
   {
-    if(&evt==&old_evt)
+//    if(&evt==&old_evt)
         return;
 
    // old_evt = EventType(evt);
@@ -83,12 +83,12 @@ private:
   {
     add(evt);
   }
-  EventType& old_evt = EventType();
+  //EventType& old_evt = EventType();
 
   message_filters::Connection incoming_connection_;
 };
 
-} // namespace message_filters
+} // namespace custom_filters
 
-#endif // MESSAGE_FILTERS_DOUBLE_H
+#endif // CUSTOM_FILTERS_DOUBLE_H
 
