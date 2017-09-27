@@ -42,7 +42,7 @@ namespace custom_filters
 namespace comparator
 {
 ///
-/// \brief strintComparator
+/// \brief stringComparator
 /// \param newMessage the new message arrived in the filter
 /// \param previsouMessage the previous message stored in the filter
 /// \return true if both message are different
