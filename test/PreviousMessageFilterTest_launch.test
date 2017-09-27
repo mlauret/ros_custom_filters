@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+<launch>
+  <test test-name="PreviousMessageFilterUnitTest" pkg="custom_filters" type="PreviousMessageFilterTest"/>
+</launch>

@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8.3)
 project(custom_filters)
 
 ## Add support for C++11, supported in ROS Kinetic and newer
-add_definitions(-std=c++11)
+#add_definitions(-std=c++11)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -193,8 +193,8 @@ install(DIRECTORY include/${PROJECT_NAME}/
 # catkin_add_gtest(${PROJECT_NAME}-test test/test_custom_filters.cpp)
 if(CATKIN_ENABLE_TESTING)
   find_package(rostest REQUIRED)
-  add_rostest_gtest(DoubleFilterTest test/DoubleFilterTest_launch.test src/test/DoubleFilterTest.cpp)
-  target_link_libraries(DoubleFilterTest ${catkin_LIBRARIES})
+  add_rostest_gtest(PreviousMessageFilterTest test/PreviousMessageFilterTest_launch.test src/test/PreviousMessageFilterTest.cpp)
+  target_link_libraries(PreviousMessageFilterTest ${catkin_LIBRARIES})
 endif()
 
 ## Add folders to be run by python nosetests

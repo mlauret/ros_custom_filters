@@ -1,7 +1,7 @@
 /*********************************************************************
 * Software License Agreement (BSD License)
 *
-*  Copyright (c) 2017, Mathieu Lauret
+*  Copyright (c) 2017, Willow Garage
 *  All rights reserved.
 *
 *  Redistribution and use in source and binary forms, with or without
@@ -32,72 +32,80 @@
 *  POSSIBILITY OF SUCH DAMAGE.
 *********************************************************************/
 
-#ifndef CUSTOM_FILTERS_DOUBLE_H
-#define CUSTOM_FILTERS_DOUBLE_H
+#ifndef CUSTOM_FILTERS_PREVIOUS_H
+#define CUSTOM_FILTERS_PREVIOUS_H
 
 #include "message_filters/simple_filter.h"
 
 namespace custom_filters
 {
 
-template<typename M>
-class DoubleFilter : public message_filters::SimpleFilter<M>
+template <typename M>
+class PreviousMessageFilter : public message_filters::SimpleFilter<M>
 {
 public:
+  //Internal stuff of message_filter
   typedef boost::shared_ptr<M const> MConstPtr;
   typedef ros::MessageEvent<M const> EventType;
 
-
-  template<typename F>
-  DoubleFilter(F& f, bool(*nfp)(const boost::shared_ptr<const M> &,const boost::shared_ptr<const M> &))
+  //Constructor of the filter
+  template <typename F>
+  PreviousMessageFilter(F& f, bool (*nfp)(const boost::shared_ptr<const M>&,
+                                 const boost::shared_ptr<const M>&))
   {
     connectInput(f);
+    //We save the user-callback for later
     fp = nfp;
   }
 
-  template<class F>
-  void connectInput(F& f)
+  //Internal stuff of message_filter
+  template <class F> void connectInput(F& f)
   {
     incoming_connection_.disconnect();
-    incoming_connection_ = f.registerCallback(typename message_filters::SimpleFilter<M>::EventCallback(boost::bind(&DoubleFilter::cb, this, _1)));
+    incoming_connection_ = f.registerCallback(
+        typename message_filters::SimpleFilter<M>::EventCallback(
+            boost::bind(&PreviousMessageFilter::cb, this, _1)));
   }
 
-  void add(const MConstPtr& msg)
-  {
-    add(EventType(msg));
-  }
+  //Internal stuff Needed ?
+  void add(const MConstPtr& msg) { add(EventType(msg)); }
 
+  //This is where the magic happen, "evt" is actually the message passed from the previous filter
   void add(const EventType& evt)
   {
-    //We need to initialize old_evt once
-    if(old_evt.getMessage() == 0){
+    // We need to initialize old_evt once
+    if (old_evt.getMessage() == 0)
+    {
       old_evt = EventType(evt);
       this->signalMessage(evt);
       return;
     }
 
-    //If the user-callback returned true, pass the message
-    if(fp(evt.getConstMessage(), old_evt.getConstMessage())){
+    // If the user-callback returned true, pass the message to the next filter
+    if (fp(evt.getConstMessage(), old_evt.getConstMessage()))
+    {
       this->signalMessage(evt);
     }
 
+    //Save the current message
     old_evt = EventType(evt);
     return;
   }
 
 private:
-  void cb(const EventType& evt)
-  {
-    add(evt);
-  }
+  void cb(const EventType& evt) { add(evt); }
+
+  //The previous message to be compared with the next one
   EventType old_evt;
 
-  bool (*fp)(const boost::shared_ptr<const M> &,const boost::shared_ptr<const M> &);
+  //The user callback
+  bool (*fp)(const boost::shared_ptr<const M>&,
+             const boost::shared_ptr<const M>&);
 
+  //Internal stuff
   message_filters::Connection incoming_connection_;
 };
 
 } // namespace custom_filters
 
-#endif // CUSTOM_FILTERS_DOUBLE_H
-
+#endif // CUSTOM_FILTERS_PREVIOUS_H
