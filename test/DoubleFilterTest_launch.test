@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+<launch>
+  <test test-name="DoubleFilterUnitTest" pkg="custom_filters" type="DoubleFilterTest"/>
+</launch>
