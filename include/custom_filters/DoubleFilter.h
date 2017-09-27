@@ -47,14 +47,12 @@ public:
   typedef boost::shared_ptr<M const> MConstPtr;
   typedef ros::MessageEvent<M const> EventType;
 
-  DoubleFilter()
-  {
-  }
 
   template<typename F>
-  DoubleFilter(F& f)
+  DoubleFilter(F& f, bool(*nfp)(const boost::shared_ptr<const M> &,const boost::shared_ptr<const M> &))
   {
     connectInput(f);
+    fp = nfp;
   }
 
   template<class F>
@@ -71,11 +69,20 @@ public:
 
   void add(const EventType& evt)
   {
-//    if(&evt==&old_evt)
-        return;
+    //We need to initialize old_evt once
+    if(old_evt.getMessage() == 0){
+      old_evt = EventType(evt);
+      this->signalMessage(evt);
+      return;
+    }
 
-   // old_evt = EventType(evt);
-    this->signalMessage(evt);
+    //If the user-callback returned true, pass the message
+    if(fp(evt.getConstMessage(), old_evt.getConstMessage())){
+      this->signalMessage(evt);
+    }
+
+    old_evt = EventType(evt);
+    return;
   }
 
 private:
@@ -83,7 +90,9 @@ private:
   {
     add(evt);
   }
-  //EventType& old_evt = EventType();
+  EventType old_evt;
+
+  bool (*fp)(const boost::shared_ptr<const M> &,const boost::shared_ptr<const M> &);
 
   message_filters::Connection incoming_connection_;
 };
